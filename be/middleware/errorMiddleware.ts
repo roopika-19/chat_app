@@ -9,7 +9,7 @@ const notFound = (req: Request, res: Response, next: NextFunction): void => {
 
 
 const errorHandler = (
-  err: { message: string; stack?: string }, // Adjusted to handle error with optional stack
+  err: { message: string; stack?: string }, 
   req: Request,
   res: Response,
   next: NextFunction
