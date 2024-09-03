@@ -2,11 +2,11 @@
 import * as React from "react";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import SearchIcon from "@mui/icons-material/Search";
-
+import Lottie from "react-lottie";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -17,7 +17,6 @@ import {
 import { Input } from "@/components/ui/input";
 import ChatLoading from "@/components/chat/chatLoading";
 import UserListItem from "@/components/chat/userlistitem";
-import { Progress } from "@/components/ui/progress";
 import useChatStore from "@/store/userStore";
 import {
   DropdownMenu,
@@ -25,9 +24,25 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ProfileModal from "../chat/profileModal";
-import { getSenderFull } from "../chat/chatLogic";
+import { getSender } from "../chat/chatLogic";
+import animationData from "@/components/animations/bellicon.json";
 
 export default function SideDrawer() {
   const [search, setSearch] = useState("");
@@ -35,9 +50,26 @@ export default function SideDrawer() {
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const { selectedChat, setSelectedChat, user, chats, setChats } =
-    useChatStore();
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
+
+  const {
+    selectedChat,
+    setSelectedChat,
+    user,
+    chats,
+    setChats,
+    notification,
+    setNotification,
+  } = useChatStore();
   const { setTheme } = useTheme();
 
   const handleSearch = async () => {
@@ -74,13 +106,6 @@ export default function SideDrawer() {
   };
 
   const accessChat = async (userId: string) => {
-    console.log(userId);
-
-    // if (!user || !selectedChat) {
-    //   console.log("Hello");
-    //   return;
-    // }
-
     try {
       setLoadingChat(true);
       const config = {
@@ -94,8 +119,6 @@ export default function SideDrawer() {
         { userId },
         config
       );
-
-      console.log("****** ", data);
 
       if (!chats.find((c: { _id: string }) => c._id === data._id)) {
         setChats([data, ...chats]);
@@ -113,8 +136,16 @@ export default function SideDrawer() {
     }
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
+
   return (
-    <div className="flex items-center p-4 space-x-4">
+    <div className="flex justify-between items-center p-4 bg-gray-800">
       <div className="relative">
         <Button
           variant="ghost"
@@ -151,41 +182,78 @@ export default function SideDrawer() {
                 ))}
               </div>
             )}
-            {loadingChat && <Progress value={33} />}
+            {loadingChat && <Lottie options={defaultOptions} />}
           </DrawerContent>
         </Drawer>
       </div>
+      <div className="flex items-center space-x-4">
+        {user && (
+          <ProfileModal user={user}>
+            <Avatar className="cursor-pointer">
+              <AvatarImage src={user.pic} alt={user.name} />
+              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+          </ProfileModal>
+        )}
 
-      {user && (
-        <ProfileModal user={user}>
-          <Avatar className="cursor-pointer">
-            <AvatarImage src={user.pic} alt={user.name} />
-            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-        </ProfileModal>
-      )}
+        {isMounted && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="bg-gray-800 text-white"
+              >
+                <SunIcon className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <MoonIcon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                System
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
 
-      <div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <SunIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setTheme("light")}>
-              Light
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("dark")}>
-              Dark
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("system")}>
-              System
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Menubar>
+          <MenubarMenu>
+            <MenubarTrigger>
+              <button className="relative bg-gray-800 w-full ">
+                {typeof window !== "undefined" && (
+                  <Lottie options={defaultOptions} height={60} width={100} />
+                )}
+              </button>
+            </MenubarTrigger>
+            <MenubarContent>
+              {!notification.length && "No New Messages"}
+              {notification.map((notif) => (
+                <MenubarItem
+                  key={notif._id}
+                  onClick={() => {
+                    setSelectedChat(notif.chat);
+                    setNotification(notification.filter((n) => n !== notif));
+                  }}
+                >
+                  {user &&
+                    (notif.chat.isGroupChat
+                      ? `New Message in ${notif.chat.chatName}`
+                      : `New Message from ${getSender(
+                          user,
+                          notif.chat.users
+                        )}`)}
+                </MenubarItem>
+              ))}
+            </MenubarContent>
+          </MenubarMenu>
+        </Menubar>
       </div>
     </div>
   );

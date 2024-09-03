@@ -1,10 +1,15 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import {
+  IconBrandGithub,
+  IconBrandGoogle,
+  IconBrandOnlyfans,
+} from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,11 +23,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { loginUser } from "@/helper/apiCommunicator";
 import useChatStore from "@/store/userStore";
+import { SparklesCore } from "@/components/ui/sparkles";
 import { useEffect } from "react";
-import { userInfo } from "os";
-import { log } from "console";
-// import { useToast } from "@/components/hooks/use-toast"
-// const { toast } = useToast()
+
 const FormSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
@@ -46,25 +49,6 @@ export function LoginForm() {
     },
   });
 
-  // useEffect(() => {
-  //   const isToken: any = localStorage.getItem("token");
-  //   if (isToken) {
-  //     const loggedInUser = JSON.parse(localStorage.getItem("userInfo") ?? "{}");
-  //     setUser({
-  //       _id: loggedInUser._id,
-  //       name: loggedInUser.name,
-  //       email: loggedInUser.email,
-  //       pic: loggedInUser.pic,
-  //       isAdmin: loggedInUser.isAdmin,
-  //       token: loggedInUser.token,
-  //     });
-  //     localStorage.setItem("token", loggedInUser.token);
-  //     router.push("/chat");
-  //   } else if (!isToken) {
-  //     localStorage.clear();
-  //   }
-  // }, []);
-
   async function onSubmit(data: FormData) {
     try {
       const result = await loginUser(data.email, data.password);
@@ -81,17 +65,9 @@ export function LoginForm() {
         localStorage.setItem("token", result.token);
         localStorage.setItem("userInfo", JSON.stringify(result));
 
-        // toast({
-        //   title: "Login Successful",
-        //   description: "You have successfully logged in.",
-        // });
-
         router.push("/chat");
       } else {
-        // toast({
-        //   title: "Login Failed",
-        //   description: result.message || "An error occurred."
-        // });
+        console.error("Login failed:", result.message);
       }
     } catch (error) {
       let errorMessage = "An unexpected error occurred. Please try again.";
@@ -100,30 +76,44 @@ export function LoginForm() {
         errorMessage = error.message;
       }
 
-      console.error("Login error:", error);
-      // toast({
-      //   title: "Login Error",
-      //   description: errorMessage
-      // });
+      console.error("Login error:", errorMessage);
     }
   }
 
   return (
-    <div className="flex justify-center items-center">
+    <div className="relative max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-black dark:bg-black border-white overflow-hidden">
+      <div className="absolute inset-0 w-full h-full pointer-events-none z-10">
+        <SparklesCore
+          id="tsparticlesLoginForm"
+          background="transparent"
+          minSize={0.6}
+          maxSize={1.4}
+          particleDensity={100}
+          className="w-full h-full"
+          particleColor="#FFFFFF"
+        />
+      </div>
+
+      <p className="text-gray-300 text-sm max-w-sm mt-2 dark:text-white z-20 relative">
+        Login to chat app and get connected .....
+      </p>
       <Form {...form}>
         <form
+          className="my-8 relative z-20"
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-1/2 space-y-5 ml-10"
         >
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-lg font-bold">Email</FormLabel>
+              <FormItem className="mb-4">
+                <FormLabel htmlFor="email" className="text-white">
+                  Email Address
+                </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="your.email@example.com"
+                    id="email"
+                    placeholder="projectmayhem@fc.com"
                     type="email"
                     {...field}
                   />
@@ -137,17 +127,41 @@ export function LoginForm() {
             control={form.control}
             name="password"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-lg font-bold">Password</FormLabel>
+              <FormItem className="mb-4">
+                <FormLabel htmlFor="password" className="text-white">
+                  Password
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="••••••••" type="password" {...field} />
+                  <Input
+                    id="password"
+                    placeholder="••••••••"
+                    type="password"
+                    {...field}
+                  />
                 </FormControl>
-                <FormDescription>Choose a secure password.</FormDescription>
+                <FormDescription>Enter your password.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button
+            type="submit"
+            className="bg-gradient-to-br from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+          >
+            Sign up &rarr;
+          </Button>
+          <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
+          <div className="flex flex-col space-y-4">
+            <button
+              className="relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
+              type="button"
+            >
+              <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
+              <div className="text-neutral-700 dark:text-neutral-300 text-sm">
+                Google
+              </div>
+            </button>
+          </div>
         </form>
       </Form>
     </div>

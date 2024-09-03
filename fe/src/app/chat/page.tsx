@@ -22,8 +22,6 @@ const Chatpage = () => {
   const { user, setUser } = useChatStore();
   const router = useRouter();
 
-  // const storedUser = getLocalStorage("userInfo");
-
   return (
     <div className="w-full h-screen flex flex-col">
       <div className="w-full bg-[#6482AD] text-white  ">

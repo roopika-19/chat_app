@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import axios from "axios";
-import ScrollableChat from "./ScrollableChat"; // Updated import
-import "./styles.css";
+import ScrollableChat from "./ScrollableChat";
 import io from "socket.io-client";
+import Lottie from "react-lottie";
+import animationData from "../animations/typing.json";
 
 interface SingleChatProps {
   fetchAgain: boolean;
@@ -42,6 +43,15 @@ const SingleChat: React.FC<SingleChatProps> = ({
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
   const { selectedChat, user, notification, setNotification } = useChatStore();
+
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
 
   const sendMessage = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -96,7 +106,7 @@ const SingleChat: React.FC<SingleChatProps> = ({
     if (!user || !selectedChat) return null;
 
     return !selectedChat.isGroupChat ? (
-      <div className="flex items-center justify-between bg-white p-2">
+      <div className="flex items-center justify-between bg-white p-2 border-b">
         <span className="text-lg font-bold">
           {getSender(user, selectedChat.users)}
         </span>
@@ -110,7 +120,7 @@ const SingleChat: React.FC<SingleChatProps> = ({
         </div>
       </div>
     ) : (
-      <div className="flex items-center justify-between bg-blue-300 p-2 rounded-lg">
+      <div className="flex items-center justify-between bg-blue-300 p-2 rounded-lg border-b">
         <span className="text-lg font-bold">
           {selectedChat.chatName.toUpperCase()}
         </span>
@@ -201,11 +211,15 @@ const SingleChat: React.FC<SingleChatProps> = ({
           <div className="messages">
             <ScrollableChat messages={messages} />
           </div>
-          <form onSubmit={sendMessage} className="flex items-center">
+          {istyping && (
+            <div className="typing-indicator mt-2 flex items-center">
+              <div className="rounded-full bg-gray-200">
+                <Lottie options={defaultOptions} />
+              </div>
+            </div>
+          )}
+          <form onSubmit={sendMessage} className="flex items-center mt-2">
             <div className="flex-grow flex items-center border bg-white">
-              {istyping && (
-                <div className="text-sm text-gray-500">Typing...</div>
-              )}
               <Input
                 id="message"
                 placeholder="Type a message..."

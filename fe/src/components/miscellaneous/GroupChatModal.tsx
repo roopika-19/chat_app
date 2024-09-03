@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import useChatStore from "@/store/userStore";
 import { Button } from "@/components/ui/button";
@@ -16,8 +15,12 @@ import AddIcon from "@mui/icons-material/Add";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
-// import UserBadgeItem from "../userAvatar/UserBadgeItem";
-// import UserListItem from "../userAvatar/UserListItem";
+import toast from "react-hot-toast";
+import UserListItem from "../chat/userlistitem";
+import { FormControl } from "../ui/form";
+import UserBadgeItem from "./userAvatar/userBadgeitem";
+import ChatLoading from "../chat/chatLoading";
+import { useForm, FormProvider } from "react-hook-form";
 
 interface User {
   _id: string;
@@ -32,13 +35,14 @@ interface GroupChatModalProps {
 }
 
 const GroupChatModal = ({ children }: GroupChatModalProps) => {
+  const methods = useForm();
   const [isOpen, setIsOpen] = useState(false);
   const [groupChatName, setGroupChatName] = useState<string>("");
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [search, setSearch] = useState<string>("");
   const [searchResult, setSearchResult] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  // const { user, chats, setChats } = useStore();
+  const { user, chats, setChats } = useChatStore();
 
   const handleGroup = (userToAdd: User) => {
     if (selectedUsers.find((u) => u._id === userToAdd._id)) {
@@ -59,15 +63,17 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
       setLoading(true);
       const config = {
         headers: {
-          // Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${user?.token}`,
         },
       };
-      const { data } = await axios.get(`/api/user?search=${query}`, config);
+      const { data } = await axios.get(
+        `http://localhost:5000/api/user/register?search=${query}`,
+        config
+      );
+      setLoading(false);
       setSearchResult(data);
     } catch (error) {
       alert("Failed to Load the Search Results");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -84,27 +90,33 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
     try {
       const config = {
         headers: {
-          // Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${user?.token}`,
         },
       };
       const { data } = await axios.post(
-        `/api/chat/group`,
+        `http://localhost:5000/api/chat/group`,
         {
           name: groupChatName,
           users: JSON.stringify(selectedUsers.map((u) => u._id)),
         },
         config
       );
-      // setChats([data, ...chats]);
+      setChats([data, ...chats]);
       setIsOpen(false);
-      alert("New Group Chat Created!");
+      toast.success("New Group Chat Created!", {
+        duration: 5000,
+        position: "bottom-center",
+      });
     } catch (error) {
-      alert("Failed to Create the Chat!");
+      toast.error("New Group Chat not Created!", {
+        duration: 5000,
+        position: "bottom-center",
+      });
     }
   };
 
   return (
-    <>
+    <FormProvider {...methods}>
       <Dialog>
         <DialogTrigger asChild>
           <Button className="flex items-center text-sm md:text-base lg:text-lg">
@@ -115,31 +127,55 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Create Group Chat</DialogTitle>
-            <DialogDescription>
-              Make changes to your profile here. Click save when you're done.
-            </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input id="name" value="Pedro Duarte" className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Username
-              </Label>
-              <Input id="username" value="@peduarte" className="col-span-3" />
-            </div>
+
+          <FormControl>
+            <Input
+              placeholder="Chat Name"
+              onChange={(e) => setGroupChatName(e.target.value)}
+            />
+          </FormControl>
+          <FormControl>
+            <Input
+              placeholder="Add Users eg: John, Piyush, Jane"
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+          </FormControl>
+          <div>
+            {selectedUsers.map((u) => (
+              <UserBadgeItem
+                key={u._id}
+                user={u}
+                handleFunction={() => handleDelete(u)}
+              />
+            ))}
           </div>
+          {loading ? (
+            <div>
+              <ChatLoading />
+              Loading...
+            </div>
+          ) : (
+            searchResult
+              ?.slice(0, 4)
+              .map((user) => (
+                <UserListItem
+                  key={user._id}
+                  userId={user._id}
+                  userName={user.name}
+                  userPic={user.pic}
+                  userEmail={user.email}
+                  handleFunction={() => handleGroup(user)}
+                />
+              ))
+          )}
+
           <DialogFooter>
-            <Button type="submit">Save changes</Button>
+            <Button onClick={handleSubmit}>Create Chat</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </FormProvider>
   );
 };
-
 export default GroupChatModal;

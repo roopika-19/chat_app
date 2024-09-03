@@ -1,14 +1,33 @@
 import type { Config } from "tailwindcss"
+function addVariablesForColors({ addBase, theme }: any) {
+  // Directly access the colors from the theme
+  const colors = theme("colors");
 
-const config = {
+  // Transform the color theme into CSS custom properties
+  const newVars = Object.fromEntries(
+    Object.entries(colors).flatMap(([key, value]) => {
+      // Handle nested colors (e.g., `primary: { DEFAULT: "#f00" }`)
+      if (typeof value === 'object' && value !== null) {
+        return Object.entries(value).map(([subKey, subValue]) => [`--${key}-${subKey}`, subValue]);
+      }
+      return [[`--${key}`, value]];
+    })
+  );
+
+  // Add base CSS custom properties
+  addBase({
+    ":root": newVars,
+  });
+}
+
+const config: Config = {
   darkMode: ["class"],
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-	],
-  prefix: "",
+  ],
   theme: {
     container: {
       center: true,
@@ -22,6 +41,9 @@ const config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        boxShadow: {
+          input: `0px 2px 3px -1px rgba(0,0,0,0.1), 0px 1px 0px 0px rgba(25,28,33,0.02), 0px 0px 0px 1px rgba(25,28,33,0.08)`,
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
@@ -74,7 +96,7 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-} satisfies Config
+  plugins: [addVariablesForColors],
+};
 
-export default config
+export default config;
