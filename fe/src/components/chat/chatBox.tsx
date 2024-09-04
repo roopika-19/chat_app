@@ -1,6 +1,8 @@
 "use client";
 import SingleChat from "./singleChat";
 import useChatStore from "@/store/userStore";
+import { useEffect } from "react";
+import AIChat from "./aiChat";
 
 interface ChatboxProps {
   fetchAgain: boolean;
@@ -8,11 +10,15 @@ interface ChatboxProps {
 }
 
 const Chatbox = ({ fetchAgain, setFetchAgain }: ChatboxProps) => {
-  const { selectedChat } = useChatStore();
+  const { aiChat, setAiChat } = useChatStore();
 
   return (
-    <div className="flex flex-col  bg-[#F7EFE5] w-full h-full  text-black">
-      <SingleChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
+    <div className="flex flex-col h-screen">
+      {aiChat ? (
+        <AIChat />
+      ) : (
+        <SingleChat fetchAgain={false} setFetchAgain={() => {}} />
+      )}
     </div>
   );
 };

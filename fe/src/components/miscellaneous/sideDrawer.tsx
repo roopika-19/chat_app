@@ -31,19 +31,22 @@ import {
   MenubarMenu,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ProfileModal from "../chat/profileModal";
 import { getSender } from "../chat/chatLogic";
 import animationData from "@/components/animations/bellicon.json";
-
+import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
+import { Sparkle } from "lucide-react";
+import { SparklesCore } from "../ui/sparkles";
+import { FloatingDock } from "../ui/floating-dock";
+import {
+  IconBrandGithub,
+  IconBrandX,
+  IconExchange,
+  IconHome,
+  IconNewSection,
+  IconTerminal2,
+} from "@tabler/icons-react";
 export default function SideDrawer() {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState<any[]>([]);
@@ -70,7 +73,7 @@ export default function SideDrawer() {
     notification,
     setNotification,
   } = useChatStore();
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   const handleSearch = async () => {
     if (!search) {
@@ -145,7 +148,7 @@ export default function SideDrawer() {
   }
 
   return (
-    <div className="flex justify-between items-center p-4 bg-gray-800">
+    <div className="flex justify-between h-13 items-center p-4 dark:bg-black dark:text:white rounded">
       <div className="relative">
         <Button
           variant="ghost"
@@ -182,6 +185,7 @@ export default function SideDrawer() {
                 ))}
               </div>
             )}
+
             {loadingChat && <Lottie options={defaultOptions} />}
           </DrawerContent>
         </Drawer>
@@ -199,11 +203,7 @@ export default function SideDrawer() {
         {isMounted && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="bg-gray-800 text-white"
-              >
+              <Button variant="outline" size="icon" className=" text-white">
                 <SunIcon className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <MoonIcon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                 <span className="sr-only">Toggle theme</span>
@@ -226,9 +226,9 @@ export default function SideDrawer() {
         <Menubar>
           <MenubarMenu>
             <MenubarTrigger>
-              <button className="relative bg-gray-800 w-full ">
+              <button className=" w-full ">
                 {typeof window !== "undefined" && (
-                  <Lottie options={defaultOptions} height={60} width={100} />
+                  <Lottie options={defaultOptions} height={100} width={100} />
                 )}
               </button>
             </MenubarTrigger>

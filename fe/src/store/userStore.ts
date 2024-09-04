@@ -18,9 +18,13 @@ interface ChatState {
   setNotification: (notifications: any[]) => void;
   chats: any[];
   setChats: (chats: any[]) => void;
+  aiChat: boolean;
+  setAiChat: (value: boolean) => void;
 }
 
 const useChatStore = create<ChatState>((set) => ({
+  aiChat: false,
+  setAiChat: (value) => set({ aiChat: value }),
   selectedChat: null,
   setSelectedChat: (chat) => set({ selectedChat: chat }),
   user: null,

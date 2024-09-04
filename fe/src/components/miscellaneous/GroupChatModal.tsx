@@ -119,7 +119,7 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
     <FormProvider {...methods}>
       <Dialog>
         <DialogTrigger asChild>
-          <Button className="flex items-center text-sm md:text-base lg:text-lg">
+          <Button className="flex items-center text-sm md:text-base lg:text-lg dark:bg-gray-900 dark:text-white">
             <AddIcon />
             New Group Chat
           </Button>

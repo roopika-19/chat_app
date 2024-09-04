@@ -11,6 +11,7 @@ import ScrollableChat from "./ScrollableChat";
 import io from "socket.io-client";
 import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 interface SingleChatProps {
   fetchAgain: boolean;
@@ -106,7 +107,7 @@ const SingleChat: React.FC<SingleChatProps> = ({
     if (!user || !selectedChat) return null;
 
     return !selectedChat.isGroupChat ? (
-      <div className="flex items-center justify-between bg-white p-2 border-b">
+      <div className="flex items-center justify-between dark:bg-[#2b363c] p-2 border-black border-solid-2px rounded ">
         <span className="text-lg font-bold">
           {getSender(user, selectedChat.users)}
         </span>
@@ -120,7 +121,7 @@ const SingleChat: React.FC<SingleChatProps> = ({
         </div>
       </div>
     ) : (
-      <div className="flex items-center justify-between bg-blue-300 p-2 rounded-lg border-b">
+      <div className="flex items-center justify-between dark: bg-blue-300 p-2 rounded-lg border-b">
         <span className="text-lg font-bold">
           {selectedChat.chatName.toUpperCase()}
         </span>
@@ -194,7 +195,7 @@ const SingleChat: React.FC<SingleChatProps> = ({
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex-1 overflow-y-auto p-2">
+      <div className="flex-1 ">
         {selectedChat ? (
           <>{renderSenderInfo()}</>
         ) : (
@@ -207,35 +208,36 @@ const SingleChat: React.FC<SingleChatProps> = ({
       </div>
 
       {selectedChat && (
-        <div className="p-2">
-          <div className="messages">
-            <ScrollableChat messages={messages} />
-          </div>
-          {istyping && (
-            <div className="typing-indicator mt-2 flex items-center">
-              <div className="rounded-full bg-gray-200">
-                <Lottie options={defaultOptions} />
+        <>
+          <div className="overflow-y-auto p-5">
+            <div className="messages  dark:text-black ">
+              <ScrollableChat messages={messages} />
+            </div>
+
+            {istyping && (
+              <div className="typing-indicator mt-2 flex items-center">
+                <div className="rounded-full bg-blue-200">
+                  <Lottie options={defaultOptions} />
+                </div>
               </div>
-            </div>
-          )}
-          <form onSubmit={sendMessage} className="flex items-center mt-2">
-            <div className="flex-grow flex items-center border bg-white">
-              <Input
-                id="message"
-                placeholder="Type a message..."
-                value={newMessage}
-                onChange={typingHandler}
-                className="flex-grow"
-              />
-            </div>
+            )}
+          </div>
+          <form onSubmit={sendMessage} className=" items-center w-full ">
+            <Input
+              id="message"
+              placeholder="Press Enter to send message..."
+              value={newMessage}
+              onChange={typingHandler}
+              className="flex-grow h-12  border  bg-gray-800 border-black rounded  mb-8"
+            />
             <Button
               type="submit"
-              className="ml-2 border border-black bg-white hover:bg-white"
+              className="h-12 bg-gray-800 text-white rounded px-4 flex items-center justify-center"
             >
-              <ArrowForwardIcon className="w-6 h-6 text-black" />
+              <ArrowForwardIcon className="h-6" />
             </Button>
           </form>
-        </div>
+        </>
       )}
     </div>
   );

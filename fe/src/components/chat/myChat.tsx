@@ -24,8 +24,16 @@ interface MyChatsProps {
 
 const MyChats = ({ fetchAgain }: MyChatsProps) => {
   const [loggedUser, setLoggedUser] = useState<User | null>(null); // Update the state type
-  const { selectedChat, setSelectedChat, setUser, user, chats, setChats } =
-    useChatStore();
+  const {
+    selectedChat,
+    setSelectedChat,
+    setUser,
+    user,
+    chats,
+    setChats,
+    aiChat,
+    setAiChat,
+  } = useChatStore();
 
   const router = useRouter();
 
@@ -49,7 +57,6 @@ const MyChats = ({ fetchAgain }: MyChatsProps) => {
   };
 
   useEffect(() => {
-    console.info("I was called!!");
     const isToken: any = getLocalStorage("token");
     if (isToken) {
       const loggedInUser = JSON.parse(getLocalStorage("userInfo") ?? "{}");
@@ -74,46 +81,60 @@ const MyChats = ({ fetchAgain }: MyChatsProps) => {
   }, [user]);
 
   return (
-    <ScrollArea className="flex flex-col p-3 bg-[#7FA1C3] w-full h-full  text-black">
-      <div className="flex justify-between items-center pb-3 px-3 font-sans text-lg md:text-xl">
+    <>
+      <div className="flex justify-between items-center p-3  font-sans text-lg md:text-xl text-white border- dark:bg-black">
         My Chats
         <GroupChatModal>hey</GroupChatModal>
       </div>
-      <Separator className="w-full h-0.5 bg-black" />
-      <div className="flex flex-col h-full w-full rounded-mx p-1">
-        {chats ? (
-          chats.map((chat) => (
-            <div
-              key={chat._id}
-              onClick={() => setSelectedChat(chat)}
-              className={`p-5 rounded-lg cursor-pointer  ${
-                selectedChat === chat
-                  ? "bg-[#6482AD] text-black"
-                  : "bg-[#7FA1C3] text-black"
-              }`}
-            >
-              <div className="mb-2">
-                {!chat.isGroupChat
-                  ? loggedUser
-                    ? getSender(loggedUser, chat.users)
-                    : "Loading..."
-                  : chat.chatName}
-              </div>
-              {chat.latestMessage && (
-                <div className="text-xs mt-1">
-                  <b>{chat.latestMessage.sender.name} : </b>
-                  {chat.latestMessage.content.length > 50
-                    ? chat.latestMessage.content.substring(0, 51) + "..."
-                    : chat.latestMessage.content}
+      <Separator className="w-full min-h-0.5  bg-black dark:bg-white" />
+      <ScrollArea className="flex flex-col p-3 dark:bg-black w-full h-full dark: text-white">
+        <div className="flex flex-col h-full w-full dark: bg-black ">
+          <div
+            onClick={() => {
+              setAiChat(true);
+              setSelectedChat(null);
+            }}
+            className="p-5 rounded-lg cursor-pointer mb-2 bg-purple-900 text-white"
+          >
+            <div className="mb-2">AI Chat</div>
+          </div>
+          {chats ? (
+            chats.map((chat) => (
+              <div
+                key={chat._id}
+                onClick={() => {
+                  setSelectedChat(chat);
+                  setAiChat(false);
+                }}
+                className={`p-5 rounded-lg cursor-pointer mb-2 ${
+                  selectedChat === chat
+                    ? "bg-[#2b363c] text-white"
+                    : "bg-gray-900 text-white"
+                }`}
+              >
+                <div className="mb-2">
+                  {!chat.isGroupChat
+                    ? loggedUser
+                      ? getSender(loggedUser, chat.users)
+                      : "Loading..."
+                    : chat.chatName}
                 </div>
-              )}
-            </div>
-          ))
-        ) : (
-          <ChatLoading />
-        )}
-      </div>
-    </ScrollArea>
+                {chat.latestMessage && (
+                  <div className="text-xs mt-1">
+                    <b>{chat.latestMessage.sender.name} : </b>
+                    {chat.latestMessage.content.length > 50
+                      ? chat.latestMessage.content.substring(0, 51) + "..."
+                      : chat.latestMessage.content}
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <ChatLoading />
+          )}
+        </div>
+      </ScrollArea>
+    </>
   );
 };
 

@@ -1,9 +1,7 @@
 import type { Config } from "tailwindcss"
 function addVariablesForColors({ addBase, theme }: any) {
-  // Directly access the colors from the theme
   const colors = theme("colors");
 
-  // Transform the color theme into CSS custom properties
   const newVars = Object.fromEntries(
     Object.entries(colors).flatMap(([key, value]) => {
       // Handle nested colors (e.g., `primary: { DEFAULT: "#f00" }`)

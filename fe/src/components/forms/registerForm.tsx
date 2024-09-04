@@ -18,6 +18,13 @@ import { Input } from "@/components/ui/input";
 import { registerUser } from "@/helper/apiCommunicator";
 import useChatStore from "@/store/userStore";
 import { SparklesCore } from "@/components/ui/sparkles";
+import {
+  IconHome,
+  IconTerminal2,
+  IconNewSection,
+  IconExchange,
+} from "@tabler/icons-react";
+import { FloatingDock } from "../ui/floating-dock";
 
 const FormSchema = z.object({
   name: z.string().min(2, {

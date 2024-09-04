@@ -58,7 +58,7 @@ io.on('connection', (socket: Socket) => {
   socket.on('new message', (newMessageRecieved: { chat: { users: { _id: string }[] }; sender: { _id: string } }) => {
     const chat = newMessageRecieved.chat;
 
-    console.log("****** ", chat);
+
 
     if (!chat.users) return console.log('chat.users not defined');
 
