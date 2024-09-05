@@ -10,7 +10,6 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import axios from "axios";
 import ScrollableChat from "./ScrollableChat";
 import io from "socket.io-client";
-import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
 import { Call } from "../icons/call";
 
