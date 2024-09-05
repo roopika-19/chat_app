@@ -1,3 +1,4 @@
+"use client";
 import React, { useCallback, useEffect, useState } from "react";
 import useChatStore from "@/store/userStore";
 import { getSender, getSenderFull } from "./chatLogic";
@@ -11,7 +12,12 @@ import ScrollableChat from "./ScrollableChat";
 import io from "socket.io-client";
 import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
+import logo from "../animations/logo.json";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
+import WebRTCChat from "../call/callDialog";
+import { Dialog } from "../ui/dialog";
+import CallDialog from "../call/callDialog";
+// import nanoid from "nanoid";
 
 interface SingleChatProps {
   fetchAgain: boolean;
@@ -44,7 +50,10 @@ const SingleChat: React.FC<SingleChatProps> = ({
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
   const { selectedChat, user, notification, setNotification } = useChatStore();
-
+  const [openCallDialog, setOpenCallDialog] = useState(false);
+  const [calling, setCalling] = useState(false);
+  // TODO: Use a constant channel ID, send this VIA socket to other user.
+  const [channel, setChannel] = useState("123456789");
   const defaultOptions = {
     loop: true,
     autoplay: true,
@@ -118,6 +127,7 @@ const SingleChat: React.FC<SingleChatProps> = ({
               <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
             </Avatar>
           </ProfileModal>
+          {/* <WebRTCChat userId={getSenderFull(user, selectedChat.users)._id} /> */}
         </div>
       </div>
     ) : (
@@ -160,13 +170,13 @@ const SingleChat: React.FC<SingleChatProps> = ({
         }
       } else {
         setMessages([...messages, newMessageRecieved]);
-        refreshChatPage(newMessageRecieved);
+        // refreshChatPage(newMessageRecieved);
       }
     });
   }, [
     messages,
     notification,
-    refreshChatPage,
+    // refreshChatPage,
     selectedChatCompare,
     fetchAgain,
   ]);
@@ -195,52 +205,59 @@ const SingleChat: React.FC<SingleChatProps> = ({
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex-1 ">
-        {selectedChat ? (
-          <>{renderSenderInfo()}</>
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <span className="text-3xl font-bold text-center">
-              Click on a user to start chatting
-            </span>
-          </div>
-        )}
-      </div>
-
-      {selectedChat && (
-        <>
-          <div className="overflow-y-auto p-5">
-            <div className="messages  dark:text-black ">
-              <ScrollableChat messages={messages} />
+      <Dialog open={openCallDialog} onOpenChange={setOpenCallDialog}>
+        <div className="flex-1 ">
+          {selectedChat ? (
+            <>{renderSenderInfo()}</>
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <span className="text-3xl font-bold text-center">
+                Click on a user to start chatting
+              </span>
             </div>
+          )}
+        </div>
 
-            {istyping && (
-              <div className="typing-indicator mt-2 flex items-center">
-                <div className="rounded-full bg-blue-200">
-                  <Lottie options={defaultOptions} />
-                </div>
+        {selectedChat && (
+          <>
+            <div className="overflow-y-auto p-5">
+              <div className="messages  dark:text-black ">
+                <ScrollableChat messages={messages} />
               </div>
-            )}
-          </div>
-          <form onSubmit={sendMessage} className=" items-center w-full ">
-            <Input
-              id="message"
-              placeholder="Press Enter to send message..."
-              value={newMessage}
-              onChange={typingHandler}
-              className="flex-grow h-12  border  bg-gray-800 border-black rounded  mb-8"
-            />
-            <Button
-              type="submit"
-              className="h-12 bg-gray-800 text-white rounded px-4 flex items-center justify-center"
-            >
-              <ArrowForwardIcon className="h-6" />
-            </Button>
-          </form>
-        </>
-      )}
+
+              {istyping && (
+                <div className="typing-indicator mt-2 flex items-center">
+                  <div className="rounded-full bg-blue-200">
+                    <Lottie options={defaultOptions} />
+                  </div>
+                </div>
+              )}
+            </div>
+            <form onSubmit={sendMessage} className=" items-center w-full ">
+              <Input
+                id="message"
+                placeholder="Press Enter to message..."
+                value={newMessage}
+                onChange={typingHandler}
+                className="flex-grow h-12  border  bg-gray-800 border-black rounded  mb-8"
+              />
+              <Button
+                type="submit"
+                className="h-12 bg-gray-800 text-white rounded px-4 flex items-center justify-center"
+              >
+                <ArrowForwardIcon className="h-6" />
+              </Button>
+            </form>
+          </>
+        )}
+        <CallDialog
+          setOpen={setOpenCallDialog}
+          calling={calling}
+          setCalling={setCalling}
+          channel={channel}
+        />
+      </Dialog>
     </div>
   );
 };
-
 export default SingleChat;

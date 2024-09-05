@@ -5,10 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import axios from "axios";
-import ScrollableChat from "./ScrollableChat";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import AiIcon from "../assets/ai-icon.png"; // Replace with the path to your AI logo
 
 const AIChat = () => {
   const [messages, setMessages] = useState<any[]>([]);
@@ -108,7 +105,7 @@ const AIChat = () => {
           placeholder="Ask something..."
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-grow h-12 border bg-gray-800 border-black rounded mb-2"
+          className="flex-grow h-12 border bg-gray-800 border-black rounded mb-7"
         />
         <Button
           type="submit"

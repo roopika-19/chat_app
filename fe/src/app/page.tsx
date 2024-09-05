@@ -4,28 +4,70 @@ import { SparklesCore } from "@/components/ui/sparkles";
 import useChatStore from "@/store/userStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { FloatingDock } from "@/components/ui/floating-dock";
+import {
+  IconBrandGithub,
+  IconBrandX,
+  IconExchange,
+  IconHome,
+  IconNewSection,
+  IconTerminal2,
+} from "@tabler/icons-react";
 
 export default function SparklesPreview() {
   const { user } = useChatStore(); // Access the user state
   const router = useRouter();
+  const links = [
+    {
+      title: "Home",
+      icon: (
+        <IconHome className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+      ),
+      href: "/",
+    },
 
+    {
+      title: "Login",
+      icon: (
+        <IconTerminal2 className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+      ),
+      href: "/login",
+    },
+    {
+      title: "Register",
+      icon: (
+        <IconNewSection className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+      ),
+      href: "/register",
+    },
+    {
+      title: "Chat",
+      icon: (
+        <IconExchange className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+      ),
+      href: "/chat",
+    },
+
+    {
+      title: "Github",
+      icon: (
+        <IconBrandGithub className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+      ),
+      href: "https://github.com/roopika-19",
+    },
+  ];
   return (
-    <div>
-      <div className="flex space-x-4">
-        <button className="inline-flex h-10 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
-          <Link href="/login">Login</Link>
-        </button>
-        <button className="inline-flex h-10 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
-          <Link href="/register">Register</Link>
-        </button>
-      </div>
+    <div className="flex items-center justify-center w-full">
       <div className="w-screen h-screen bg-black flex items-center justify-center overflow-hidden relative">
         <div className="flex space-x-4"></div>
+
         <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div className="fixed top-12 left-100 mt-5 ">
+            <FloatingDock mobileClassName="translate-y-20" items={links} />
+          </div>
           <h1 className="font-extrabold text-white z-20 tracking-wider drop-shadow-md font-serif text-3xl lg:text-5xl">
             Welcome to Chat App
           </h1>
-
           {/* Gradients */}
           <div className="w-[40rem] relative mt-3">
             <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-[2px] w-3/4 blur-sm" />

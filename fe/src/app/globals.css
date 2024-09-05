@@ -63,7 +63,9 @@
     overflow-y: scroll;
     scrollbar-width: none;
   }
-
+  .dark-mode .lottie-container {
+    filter: brightness(0) invert(1);
+  }
   
 
 }

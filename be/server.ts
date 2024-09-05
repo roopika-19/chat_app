@@ -58,7 +58,7 @@ io.on('connection', (socket: Socket) => {
   socket.on('new message', (newMessageRecieved: { chat: { users: { _id: string }[] }; sender: { _id: string } }) => {
     const chat = newMessageRecieved.chat;
 
-
+    console.log("****** ", chat);
 
     if (!chat.users) return console.log('chat.users not defined');
 
@@ -68,7 +68,12 @@ io.on('connection', (socket: Socket) => {
       socket.in(user._id).emit('message_received', newMessageRecieved);
     });
   });
-
+ 
+  
+  socket.on("start call", async (room: string, agoraCredentials: { token: string, channel: string }) => {
+    socket.in(room).emit("incoming call", agoraCredentials);
+    console.log(`Call initiated in room ${room}`);
+  });
   socket.on('disconnect', () => {
     console.log('USER DISCONNECTED');
     const userId = socketToUserMap[socket.id];

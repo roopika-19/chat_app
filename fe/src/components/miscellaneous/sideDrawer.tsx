@@ -8,12 +8,7 @@ import { toast } from "react-hot-toast";
 import SearchIcon from "@mui/icons-material/Search";
 import Lottie from "react-lottie";
 import { Button } from "@/components/ui/button";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-} from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerHeader } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import ChatLoading from "@/components/chat/chatLoading";
 import UserListItem from "@/components/chat/userlistitem";
@@ -34,19 +29,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ProfileModal from "../chat/profileModal";
 import { getSender } from "../chat/chatLogic";
-import animationData from "@/components/animations/bellicon.json";
-import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
-import { Sparkle } from "lucide-react";
-import { SparklesCore } from "../ui/sparkles";
-import { FloatingDock } from "../ui/floating-dock";
-import {
-  IconBrandGithub,
-  IconBrandX,
-  IconExchange,
-  IconHome,
-  IconNewSection,
-  IconTerminal2,
-} from "@tabler/icons-react";
+import animationData from "@/components/animations/bell.json";
+import animationData2 from "@/components/animations/spinner1.json";
+import { BACKEND_URL } from "@/const";
 export default function SideDrawer() {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState<any[]>([]);
@@ -59,6 +44,14 @@ export default function SideDrawer() {
     loop: true,
     autoplay: true,
     animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
+  const defaultOptions2 = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData2,
     rendererSettings: {
       preserveAspectRatio: "xMidYMid slice",
     },
@@ -93,7 +86,7 @@ export default function SideDrawer() {
         },
       };
       const { data } = await axios.get(
-        `http://localhost:5000/api/user/register?search=${search}`,
+        `${BACKEND_URL}api/user/register?search=${search}`,
         config
       );
       setSearchResult(data);
@@ -118,7 +111,7 @@ export default function SideDrawer() {
         },
       };
       const { data } = await axios.post(
-        `http://localhost:5000/api/chat`,
+        `${BACKEND_URL}api/chat`,
         { userId },
         config
       );
@@ -158,16 +151,17 @@ export default function SideDrawer() {
           <SearchIcon />
         </Button>
         <Drawer open={isOpen} onOpenChange={setIsOpen} direction="left">
-          <DrawerOverlay />
-          <DrawerContent className="w-full max-w-xs">
+          <DrawerContent className="max-w-[35vw] h-full p-5">
             <DrawerHeader>Search Users</DrawerHeader>
-            <div className="flex pb-2 space-x-2">
-              <Input
-                placeholder="Search by name or email"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <Button onClick={handleSearch}>Go</Button>
+            <div className="flex gap-3 w-full justify-center">
+              <div className="flex gap-3">
+                <Input
+                  placeholder="Search user or email"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <Button onClick={handleSearch}>Go</Button>
+              </div>
             </div>
             {loading ? (
               <ChatLoading />
@@ -186,7 +180,9 @@ export default function SideDrawer() {
               </div>
             )}
 
-            {loadingChat && <Lottie options={defaultOptions} />}
+            {loadingChat && (
+              <Lottie options={defaultOptions2} height={100} width={100} />
+            )}
           </DrawerContent>
         </Drawer>
       </div>
