@@ -29,8 +29,10 @@ import { AGORA_APP_ID } from "@/const";
 const CallDialog = (props: {
   setOpen: any;
   calling: any;
+  incoming?: any;
   setCalling: any;
   channel: string;
+  declineCall?: any;
 }) => {
   // Is calling
   const [appId, setAppId] = useState(AGORA_APP_ID); // Store the app ID state
@@ -55,69 +57,84 @@ const CallDialog = (props: {
         e.preventDefault();
       }}
     >
-      <DialogHeader>
-        <DialogTitle>On-Call</DialogTitle>
-      </DialogHeader>
-      <div className="user-list m-10 flex gap-4 items-center justify-center">
-        <LocalUser
-          className="max-w-[10vw]"
-          audioTrack={localMicrophoneTrack}
-          cameraOn={cameraOn}
-          micOn={micOn}
-          videoTrack={localCameraTrack}
-          cover="https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/man-user-circle-icon.png"
-        >
-          <samp className="p-4">You</samp>
-        </LocalUser>
-        {remoteUsers.map((user) => {
-          return (
-            <div className="user h-[100%] w-[10vw]" key={user.uid}>
-              {/* {user.uid} */}
-              <RemoteUser
-                className="max-w-[10vw] h-[20vh]"
-                cover="https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/boy-child-color-icon.png"
-                user={user}
-                playAudio
-              >
-                <samp className="user-name">{user.uid}</samp>
-              </RemoteUser>
-            </div>
-          );
-        })}
-      </div>
-      <DialogFooter className="flex gap-3 row-reverse">
-        <Button
-          type="button"
-          onClick={() => {
-            setCamera((a) => !a);
-          }}
-          size="icon"
-          variant={cameraOn ? "destructive" : "secondary"}
-        >
-          {!cameraOn ? <Video height={20} /> : <VideoDrop height={20} />}
-        </Button>
-        <Button
-          type="button"
-          onClick={() => {
-            setMic((a) => !a);
-          }}
-          size="icon"
-          variant={micOn ? "destructive" : "secondary"}
-        >
-          {!micOn ? <Mic height={20} /> : <MicDrop height={20} />}
-        </Button>
-        <Button
-          type="button"
-          onClick={() => {
-            props.setCalling(false);
-            props.setOpen(false);
-          }}
-          size="icon"
-          variant={props.calling ? "destructive" : "secondary"}
-        >
-          {props.calling ? <CallDrop height={20} /> : <Call height={20} />}
-        </Button>
-      </DialogFooter>
+      {props.incoming && !props.calling && (
+        <>
+          <DialogHeader>
+            <DialogTitle>Incoming Call</DialogTitle>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3 row-reverse">
+            <Button onClick={props.setCalling(true)}>Accept</Button>
+            <Button onClick={props.declineCall()}>Decline</Button>
+          </DialogFooter>
+        </>
+      )}
+      {props.calling && (
+        <>
+          <DialogHeader>
+            <DialogTitle>On-Call</DialogTitle>
+          </DialogHeader>
+          <div className="user-list m-10 flex gap-4 items-center justify-center">
+            <LocalUser
+              className="max-w-[10vw]"
+              audioTrack={localMicrophoneTrack}
+              cameraOn={cameraOn}
+              micOn={micOn}
+              videoTrack={localCameraTrack}
+              cover="https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/man-user-circle-icon.png"
+            >
+              <samp className="p-4">You</samp>
+            </LocalUser>
+            {remoteUsers.map((user) => {
+              return (
+                <div className="user h-[100%] w-[10vw]" key={user.uid}>
+                  {/* {user.uid} */}
+                  <RemoteUser
+                    className="max-w-[10vw] h-[20vh]"
+                    cover="https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/boy-child-color-icon.png"
+                    user={user}
+                    playAudio
+                  >
+                    <samp className="user-name">{user.uid}</samp>
+                  </RemoteUser>
+                </div>
+              );
+            })}
+          </div>
+          <DialogFooter className="flex gap-3 row-reverse">
+            <Button
+              type="button"
+              onClick={() => {
+                setCamera((a) => !a);
+              }}
+              size="icon"
+              variant={cameraOn ? "destructive" : "secondary"}
+            >
+              {!cameraOn ? <Video height={20} /> : <VideoDrop height={20} />}
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                setMic((a) => !a);
+              }}
+              size="icon"
+              variant={micOn ? "destructive" : "secondary"}
+            >
+              {!micOn ? <Mic height={20} /> : <MicDrop height={20} />}
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                props.setCalling(false);
+                props.setOpen(false);
+              }}
+              size="icon"
+              variant={props.calling ? "destructive" : "secondary"}
+            >
+              {props.calling ? <CallDrop height={20} /> : <Call height={20} />}
+            </Button>
+          </DialogFooter>
+        </>
+      )}
     </DialogContent>
   );
 };

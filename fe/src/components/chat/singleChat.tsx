@@ -12,12 +12,12 @@ import ScrollableChat from "./ScrollableChat";
 import io from "socket.io-client";
 import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
-import logo from "../animations/logo.json";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
-import WebRTCChat from "../call/callDialog";
-import { Dialog } from "../ui/dialog";
+import { Call } from "../icons/call";
+
+import { Dialog, DialogTrigger } from "../ui/dialog";
 import CallDialog from "../call/callDialog";
-// import nanoid from "nanoid";
+import { BACKEND_URL } from "../../const";
+import { nanoid } from "nanoid";
 
 interface SingleChatProps {
   fetchAgain: boolean;
@@ -35,7 +35,7 @@ interface Message {
   content: string;
 }
 
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = `${BACKEND_URL}`;
 let socket: ReturnType<typeof io>;
 let selectedChatCompare: any;
 
@@ -49,11 +49,12 @@ const SingleChat: React.FC<SingleChatProps> = ({
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
-  const { selectedChat, user, notification, setNotification } = useChatStore();
   const [openCallDialog, setOpenCallDialog] = useState(false);
   const [calling, setCalling] = useState(false);
   // TODO: Use a constant channel ID, send this VIA socket to other user.
-  const [channel, setChannel] = useState("123456789");
+  const { selectedChat, user, notification, setNotification } = useChatStore();
+  const [channel, setChannel] = useState(nanoid());
+
   const defaultOptions = {
     loop: true,
     autoplay: true,
@@ -76,7 +77,7 @@ const SingleChat: React.FC<SingleChatProps> = ({
         };
 
         const { data } = await axios.post(
-          `http://localhost:5000/api/message`,
+          `${BACKEND_URL}api/message`,
           { content: newMessage, chatId: selectedChat._id },
           config
         );
@@ -101,25 +102,47 @@ const SingleChat: React.FC<SingleChatProps> = ({
       setLoading(true);
 
       const { data } = await axios.get(
-        `http://localhost:5000/api/message/${selectedChat._id}`,
+        `${BACKEND_URL}api/message/${selectedChat._id}`,
         config
       );
       setMessages(data);
       setLoading(false);
+      console.log({ selectedChat });
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
       alert(error);
     }
   };
 
-  const renderSenderInfo = () => {
+  const renderSenderInfo = ({ open }: { open: any; setCalling: any }) => {
     if (!user || !selectedChat) return null;
 
     return !selectedChat.isGroupChat ? (
-      <div className="flex items-center justify-between dark:bg-[#2b363c] p-2 border-black border-solid-2px rounded ">
-        <span className="text-lg font-bold">
-          {getSender(user, selectedChat.users)}
-        </span>
+      <div className="flex items-center justify-between dark:bg-[#2b363c] p-2 border-black border-solid-2px rounded">
+        <div className="flex gap-4 items-center">
+          <span className="text-lg font-bold">
+            {getSender(user, selectedChat.users)}
+          </span>
+          <DialogTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              type="button"
+              onClick={() => {
+                open(true);
+                setCalling(true);
+                // Emit the call request via socket
+                socket.emit("start call", {
+                  to: selectedChat._id, // ID of the receiving user
+                  from: user._id, // ID of the calling user
+                  channel, // Channel ID used for the call
+                });
+              }}
+            >
+              <Call color="white" height={20} />
+            </Button>
+          </DialogTrigger>
+        </div>
         <div className="flex items-center space-x-2">
           <ProfileModal user={getSenderFull(user, selectedChat.users)}>
             <Avatar>
@@ -127,7 +150,6 @@ const SingleChat: React.FC<SingleChatProps> = ({
               <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
             </Avatar>
           </ProfileModal>
-          {/* <WebRTCChat userId={getSenderFull(user, selectedChat.users)._id} /> */}
         </div>
       </div>
     ) : (
@@ -176,7 +198,7 @@ const SingleChat: React.FC<SingleChatProps> = ({
   }, [
     messages,
     notification,
-    // refreshChatPage,
+    refreshChatPage,
     selectedChatCompare,
     fetchAgain,
   ]);
@@ -208,7 +230,7 @@ const SingleChat: React.FC<SingleChatProps> = ({
       <Dialog open={openCallDialog} onOpenChange={setOpenCallDialog}>
         <div className="flex-1 ">
           {selectedChat ? (
-            <>{renderSenderInfo()}</>
+            <>{renderSenderInfo({ open: setOpenCallDialog, setCalling })}</>
           ) : (
             <div className="flex items-center justify-center h-full">
               <span className="text-3xl font-bold text-center">
@@ -220,23 +242,19 @@ const SingleChat: React.FC<SingleChatProps> = ({
 
         {selectedChat && (
           <>
-            <div className="overflow-y-auto p-5">
-              <div className="messages  dark:text-black ">
+            <div className="overflow-y-auto p-5 scrollbar-hide">
+              <div className="messages dark:text-black">
                 <ScrollableChat messages={messages} />
               </div>
 
               {istyping && (
-                <div className="typing-indicator mt-2 flex items-center">
-                  <div className="rounded-full bg-blue-200">
-                    <Lottie options={defaultOptions} />
-                  </div>
-                </div>
+                <div className="typing-indicator mt-2 flex items-center"></div>
               )}
             </div>
-            <form onSubmit={sendMessage} className=" items-center w-full ">
+            <form onSubmit={sendMessage} className="mt-2 items-center w-full ">
               <Input
                 id="message"
-                placeholder="Press Enter to message..."
+                placeholder="Press Enter to send message..."
                 value={newMessage}
                 onChange={typingHandler}
                 className="flex-grow h-12  border  bg-gray-800 border-black rounded  mb-8"
@@ -260,4 +278,8 @@ const SingleChat: React.FC<SingleChatProps> = ({
     </div>
   );
 };
+
 export default SingleChat;
+function setOpen(arg0: boolean) {
+  throw new Error("Function not implemented.");
+}

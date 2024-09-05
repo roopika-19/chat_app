@@ -6,17 +6,35 @@ import { Button } from "@/components/ui/button";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import axios from "axios";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import animatedata from "@/components/animations/typing.json";
+import Lottie from "react-lottie";
 
 const AIChat = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const { setAiChat } = useChatStore();
-
+  const [isTyping, setIsTyping] = useState(false);
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animatedata,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
   const handleSendMessage = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (newMessage.trim()) {
+      const userMessage = newMessage;
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { content: userMessage, sender: "user" },
+      ]);
+
       setNewMessage("");
+      setIsTyping(true);
+
       const apiKey = "AIzaSyBUiQ497Inc9lBHA9VbT81BtyKtex7IpjU";
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${apiKey}`;
 
@@ -29,7 +47,7 @@ const AIChat = () => {
                 role: "user",
                 parts: [
                   {
-                    text: newMessage,
+                    text: userMessage,
                   },
                 ],
               },
@@ -43,19 +61,18 @@ const AIChat = () => {
         );
 
         console.log("API response:", response.data);
-
-        // Extract the content from the API response
         const aiResponse =
           response.data.candidates?.[0]?.content?.parts?.[0]?.text ||
           "No response";
 
         setMessages((prevMessages) => [
           ...prevMessages,
-          { content: newMessage, sender: "user" },
           { content: aiResponse, sender: "ai" },
         ]);
       } catch (error) {
         alert("Error sending message to AI.");
+      } finally {
+        setIsTyping(false);
       }
     }
   };
@@ -97,6 +114,31 @@ const AIChat = () => {
               </span>
             </div>
           ))}
+          {/* Show typing indicator when waiting for AI response */}
+          {isTyping && (
+            <div className="flex items-center mb-2 justify-start">
+              <Avatar>
+                <AvatarImage
+                  src="https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
+                  alt="AI Logo"
+                />
+                <AvatarFallback>AI</AvatarFallback>
+              </Avatar>
+              <span
+                style={{
+                  backgroundColor: "#B9F5D0",
+                  marginLeft: "10px",
+                  marginTop: "5px",
+                  borderRadius: "20px",
+                  padding: "5px 15px",
+                  maxWidth: "75%",
+                  wordBreak: "break-word",
+                }}
+              >
+                <Lottie options={defaultOptions} height={50} width={200} />
+              </span>
+            </div>
+          )}
         </div>
       </div>
       <form onSubmit={handleSendMessage} className="items-center w-full p-2">

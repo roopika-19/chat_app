@@ -82,7 +82,7 @@ const MyChats = ({ fetchAgain }: MyChatsProps) => {
 
   return (
     <>
-      <div className="flex justify-between items-center p-3  font-sans text-lg md:text-xl text-white border- dark:bg-black">
+      <div className="flex justify-between items-center p-3  font-sans text-lg md:text-xl text-white border- dark:bg-black ">
         My Chats
         <GroupChatModal>hey</GroupChatModal>
       </div>
